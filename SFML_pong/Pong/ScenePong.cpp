@@ -85,7 +85,7 @@ void ScenePong::Update(float dt)
 
 
     /////////////////////////// 충돌체크 ///////////////////////////
-    // 
+    
     // 벽 충돌
     CheckWallCollide();
 
@@ -112,7 +112,6 @@ void ScenePong::Update(float dt)
     std::stringstream ss;
     ss << "Score: " << score << "\tLife: " << life;
     hud.setString(ss.str());
-
 }
 
 void ScenePong::Draw(sf::RenderWindow& window)

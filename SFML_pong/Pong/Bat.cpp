@@ -26,11 +26,11 @@ sf::RectangleShape& Bat::GetInstance()
 
 void Bat::Init()
 {
-    shape.setSize({ 100.f, 5.f });
+    shape.setSize({ 100.f, 500.f });
     Utils::SetOrigin(shape, Origins::TC); // 이렇게 하면 포지션 = 공 포지션이면 맞붙게 됨
     shape.setFillColor(sf::Color::White);
     SetPos({ 1280.f * 0.5f, 720.f - 25.f }); // 하드코딩 고치기 나중에
-    speed = 1000.f;
+    speed = 500.f;
     direction = { 0.f, 0.f };
 }
 
