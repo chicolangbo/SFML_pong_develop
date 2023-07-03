@@ -83,59 +83,31 @@ void ScenePong::Update(float dt)
     }
     ball.Update(dt);
 
-    // 충돌체크
-    const sf::FloatRect& ballRect = ball.GetBounds();
-    const sf::FloatRect& batRect = bat.GetBounds();
-    sf::FloatRect tempRect;
-    if (ballRect.top < 0.f)
-    {
-        // 상
-        ball.OnCollisionTop();
-    }
-    else if (ballRect.top + ballRect.height > 720.f)
-    {
-        // 하
-        ball.OnCollisionBottom();
-        --life;
 
-        ballActive = false;
-        ball.Init();
-        if (life == 0)
-        {
-            bat.Init();
-            score = 0;
-            life = 3;
-        }
-    }
-    else if (ballRect.left < 0.f)
-    {
-        // 좌
-        ball.OnCollisionLeft();
-    }
-    else if (ballRect.left + ballRect.width > 1280.f)
-    {
-        // 우
-        ball.OnCollisionRight();
-    }
+    /////////////////////////// 충돌체크 ///////////////////////////
+    // 
+    // 벽 충돌
+    CheckWallCollide();
 
-    if (!batOnce)
+    // bat 충돌
+    if (CheckCRCollide(bat.GetInstance()) == Collide::Top)
     {
-        if (ballRect.intersects(batRect, tempRect))
+        std::cout << "충돌" << std::endl;
+        if (!batOnce && ballActive)
         {
-            std::cout << "충돌" << std::endl;
-            ball.OnCollisionBottom();
             ++score;
-            batOnce = true;
         }
+        batOnce = true;
     }
     else
     {
-        if (!ballRect.intersects(batRect))
-        {
-            std::cout << "충돌해제" << std::endl;
-            batOnce = false;
-        }
+        std::cout << "충돌해제" << std::endl;
+        batOnce = false;
     }
+
+    //if(CheckCRCollide(block객체))
+    //{
+    //  ++score;
 
     std::stringstream ss;
     ss << "Score: " << score << "\tLife: " << life;
@@ -152,7 +124,7 @@ void ScenePong::Draw(sf::RenderWindow& window)
     window.draw(hud);
 }
 
-void ScenePong::CheckCRCollide(sf::RectangleShape& rec)
+Collide ScenePong::CheckCRCollide(sf::RectangleShape& rec)
 {
     // 볼 바운드, 블록(or배트) 바운드
     sf::FloatRect ballBound = ball.GetBounds();
@@ -183,22 +155,26 @@ void ScenePong::CheckCRCollide(sf::RectangleShape& rec)
         {
             if (ballCenterPos.y < recBound.top) // 상
             {
-                ball.OnCollisionTop();
+                ball.OnCollisionBottom();
+                return Collide::Top;
             }
             else // 하 : else if(ballCenterPos.y > recRBPos.y)
             {
-                ball.OnCollisionBottom();
+                ball.OnCollisionTop();
+                return Collide::Other;
             }
         }
         else if (ballCenterPos.y >= recBound.top && ballCenterPos.y <= recRBPos.y) // 옆 충돌
         {
             if (ballCenterPos.x < recBound.left) // 좌
             {
-                ball.OnCollisionLeft();
+                ball.OnCollisionRight();
+                return Collide::Other;
             }
             else // 우 : else if(ballCenterPos.x > recRTPos.x)
             {
-                ball.OnCollisionRight();
+                ball.OnCollisionLeft();
+                return Collide::Other;
             }
         }
         else // 모서리 충돌
@@ -206,20 +182,64 @@ void ScenePong::CheckCRCollide(sf::RectangleShape& rec)
             if (ballCenterPos.x < recBound.left && ballCenterPos.y < recBound.top) // 좌상
             {
                 ball.OnCollisionLT();
+                return Collide::Other;
             }
             else if (ballCenterPos.x < recBound.left && ballCenterPos.y > recRBPos.y) // 좌하
             {
                 ball.OnCollisionLB();
+                return Collide::Other;
             }
             else if (ballCenterPos.x > recRTPos.x && ballCenterPos.y < recBound.top) // 우상
             {
                 ball.OnCollisionRT();
+                return Collide::Other;
             }
             else if (ballCenterPos.x > recRTPos.x && ballCenterPos.y > recBound.top) // 우하
             {
                 ball.OnCollisionRB();
+                return Collide::Other;
             }
         }
     }
+    else
+    {
+        return Collide::None;
+    }
+}
 
+void ScenePong::CheckWallCollide()
+{
+    // 벽 충돌
+    const sf::FloatRect& ballRect = ball.GetBounds();
+
+    if (ballRect.top < 0.f)
+    {
+        // 상
+        ball.OnCollisionTop();
+    }
+    else if (ballRect.top + ballRect.height > FRAMEWORK.GetWindowSize().y)
+    {
+        // 하
+        ball.OnCollisionBottom();
+        --life;
+
+        ballActive = false;
+        ball.Init();
+        if (life == 0)
+        {
+            bat.Init();
+            score = 0;
+            life = 3;
+        }
+    }
+    else if (ballRect.left < 0.f)
+    {
+        // 좌
+        ball.OnCollisionLeft();
+    }
+    else if (ballRect.left + ballRect.width > FRAMEWORK.GetWindowSize().x)
+    {
+        // 우
+        ball.OnCollisionRight();
+    }
 }

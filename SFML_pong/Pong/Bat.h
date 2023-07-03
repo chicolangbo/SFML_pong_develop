@@ -18,6 +18,7 @@ public:
 	sf::Vector2f GetPos() const;
 
 	sf::FloatRect GetBounds() const;
+	sf::RectangleShape& GetInstance();
 
 	void Init();
 

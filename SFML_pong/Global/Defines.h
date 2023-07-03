@@ -29,8 +29,9 @@ enum class Origins	// ÇÇ¹þ
 	CUSTOM
 };
 
-enum class Object
+enum class Collide
 {
-	Cloud,
-	Tree
+	None,
+	Top,
+	Other
 };

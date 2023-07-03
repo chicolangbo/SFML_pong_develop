@@ -19,6 +19,11 @@ sf::FloatRect Bat::GetBounds() const
     return shape.getGlobalBounds();
 }
 
+sf::RectangleShape& Bat::GetInstance()
+{
+    return shape;
+}
+
 void Bat::Init()
 {
     shape.setSize({ 100.f, 5.f });

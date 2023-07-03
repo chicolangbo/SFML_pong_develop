@@ -9,6 +9,7 @@ class ScenePong :
 protected:
     Ball ball;
     Bat bat;
+
     sf::Text hud;
     bool ballActive;
     int score;
@@ -29,6 +30,7 @@ public:
     virtual void Update(float dt) override;
     virtual void Draw(sf::RenderWindow& window) override;
 
-    void CheckCRCollide(sf::RectangleShape& rec);
+    Collide CheckCRCollide(sf::RectangleShape& rec);
+    void CheckWallCollide();
 };
 
