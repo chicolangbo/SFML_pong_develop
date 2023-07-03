@@ -6,6 +6,7 @@
 #include "SpriteGo.h"
 #include "Framework.h"
 #include "TextGo.h"
+#include "Utils.h"
 #include <sstream>
 
 ScenePong::ScenePong()
@@ -121,12 +122,6 @@ void ScenePong::Update(float dt)
     {
         if (ballRect.intersects(batRect, tempRect))
         {
-            if (Utils::Distance(ball.GetPos(), { bat.GetPos().x + batRect.width / 2.f, batRect.top }) == ball.shape.getRadius()
-                && (tempRect.height == tempRect.width))
-            {
-                std::cout << "모서리 충돌" << std::endl;
-            }
-
             std::cout << "충돌" << std::endl;
             ball.OnCollisionBottom();
             ++score;
@@ -155,4 +150,76 @@ void ScenePong::Draw(sf::RenderWindow& window)
     bat.Draw(window);
     ball.Draw(window);
     window.draw(hud);
+}
+
+void ScenePong::CheckCRCollide(sf::RectangleShape& rec)
+{
+    // 볼 바운드, 블록(or배트) 바운드
+    sf::FloatRect ballBound = ball.GetBounds();
+    sf::FloatRect recBound = rec.getGlobalBounds();
+    
+    // 볼 센터좌표, 블록(or배트) 꼭지점 좌표
+    sf::Vector2f ballCenterPos = ball.GetPos() + sf::Vector2f(0.f, -10.f);
+    sf::Vector2f recLTPos = { recBound.left, recBound.top };
+    sf::Vector2f recLBPos = { recBound.left, recBound.top + recBound.height };
+    sf::Vector2f recRTPos = { recBound.left + recBound.width, recBound.top };
+    sf::Vector2f recRBPos = { recBound.left + recBound.width, recBound.top + recBound.height };
+
+    // 볼과 블록(or배트) 수직선상 점(가장 가까운 점)
+    sf::Vector2f closePos;
+    closePos.x = (ballCenterPos.x <= recBound.left) ? recBound.left :
+        (ballCenterPos.x >= recRTPos.x) ? recRTPos.x : ballCenterPos.x;
+    closePos.y = (ballCenterPos.y <= recBound.top) ? recBound.top :
+        (ballCenterPos.y >= recRBPos.y) ? recRBPos.y : ballCenterPos.y;
+
+    // 가장 가까운 점과 볼좌표의 차
+    float subX = closePos.x - ballCenterPos.x;
+    float subY = closePos.y - ballCenterPos.y;
+
+    // 충돌체크 함수
+    if (Utils::SqrMagnitude({ subX,subY }) <= ball.GetRadius() * ball.GetRadius())
+    {
+        if (ballCenterPos.x >= recBound.left && ballCenterPos.x <= recRTPos.x) // 위 or 아래 충돌
+        {
+            if (ballCenterPos.y < recBound.top) // 상
+            {
+                ball.OnCollisionTop();
+            }
+            else // 하 : else if(ballCenterPos.y > recRBPos.y)
+            {
+                ball.OnCollisionBottom();
+            }
+        }
+        else if (ballCenterPos.y >= recBound.top && ballCenterPos.y <= recRBPos.y) // 옆 충돌
+        {
+            if (ballCenterPos.x < recBound.left) // 좌
+            {
+                ball.OnCollisionLeft();
+            }
+            else // 우 : else if(ballCenterPos.x > recRTPos.x)
+            {
+                ball.OnCollisionRight();
+            }
+        }
+        else // 모서리 충돌
+        {
+            if (ballCenterPos.x < recBound.left && ballCenterPos.y < recBound.top) // 좌상
+            {
+                ball.OnCollisionLT();
+            }
+            else if (ballCenterPos.x < recBound.left && ballCenterPos.y > recRBPos.y) // 좌하
+            {
+                ball.OnCollisionLB();
+            }
+            else if (ballCenterPos.x > recRTPos.x && ballCenterPos.y < recBound.top) // 우상
+            {
+                ball.OnCollisionRT();
+            }
+            else if (ballCenterPos.x > recRTPos.x && ballCenterPos.y > recBound.top) // 우하
+            {
+                ball.OnCollisionRB();
+            }
+        }
+    }
+
 }

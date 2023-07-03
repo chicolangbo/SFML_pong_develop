@@ -22,6 +22,11 @@ sf::FloatRect Ball::GetBounds() const
     return shape.getGlobalBounds();
 }
 
+float Ball::GetRadius() const
+{
+    return shape.getRadius();
+}
+
 void Ball::Init()
 {
     shape.setRadius(10.f);
@@ -71,4 +76,24 @@ void Ball::OnCollisionLeft()
 void Ball::OnCollisionRight()
 {
     direction.x = -abs(direction.x);
+}
+
+void Ball::OnCollisionLT()
+{
+    direction = { -1.f, 1.f };
+}
+
+void Ball::OnCollisionRT()
+{
+    direction = { 1.f, 1.f };
+}
+
+void Ball::OnCollisionLB()
+{
+    direction = { -1.f, -1.f };
+}
+
+void Ball::OnCollisionRB()
+{
+    direction = { 1.f, -1.f };
 }
